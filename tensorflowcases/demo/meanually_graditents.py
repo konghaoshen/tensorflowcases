@@ -19,7 +19,7 @@ scaler_horsing_data_plus_bias = scaler.transform(housing_data_plus_bias)
 X = tf.constant(scaler_horsing_data_plus_bias, dtype=tf.float32, name='X')
 #定义真实值的标签 ，因为target原类型是(20640,) 是一位数组 现在需要转换为m行一列的二维数组(20640, 1)
 Y = tf.constant(housing.target.reshape(-1,1), dtype=tf.float32, name='Y')
-
+#进行正向传播
 #初始化9个  theta 并非是满足标准正太分布  为什么在-1 到 1 之间  因为需要保证梯度下降是  g梯度的调整大小一致
 theta = tf.Variable(tf.random_uniform(shape=([n+1, 1]), minval=-1, maxval=1), name='theta')
 #计算y的预测值， 此处x和theta不能调换位置  因为x是 m行9列  theta是9行1列 所以相乘结果是m行1列
