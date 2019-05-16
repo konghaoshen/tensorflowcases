@@ -16,18 +16,21 @@ X = tf.placeholder(tf.float32, shape=(None, n_inputs), name='X')
 y = tf.placeholder(tf.int32, shape=(None,), name='y')
 
 with tf.name_scope('dnn'):
+    #同意为with下所有的全连接层增加 L1或者L2正则项
     with tf.contrib.framework.arg_scope(
             [fully_connected],
             weights_regularizer=tf.contrib.layers.l2_regularizer(scale=0.01)):
         hidden1 = fully_connected(X, n_hidden1, scope='hidden1')
         hidden2 = fully_connected(hidden1, n_hidden2, scope='hidden2')
         hidden3 = fully_connected(hidden2, n_hidden3, scope='hidden3')
+        #此处因为是用的是softmax的公式 ezi/ez1+ez2+ez3+ez4  因为分母一致，故此处不需要进行 激活函数变化
         logits = fully_connected(hidden3, n_output, scope='outputs', activation_fn=None)
 with tf.name_scope("loss"):
     #定义交叉熵损失函数， 并且求个样本平均
     #函数等价于先使用softmax损失函数，在接着计算交叉熵，并且更有效率
     #类似的softmax_corss_entorpy_with_logits 只会给one-hot编码，我们使用的会给0-9分类号
     xentropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=y, logits=logits)
+    #将全连接层增加的 l2正则项 使用， 正则项系数放置在常量池中
     reg_losses = tf.add_n(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES))
     loss = tf.reduce_mean(xentropy, name='loss')
     total_loss = tf.add(loss, reg_losses)
